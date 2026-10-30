@@ -1,13 +1,15 @@
 import hashlib
 import secrets
 import time
+import os
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
 app = FastAPI(title="Book Lending API")
 
-TOKEN_TTL_SECONDS = 60 * 60  # 60 minutes, per FR-U4
+#TOKEN_TTL_SECONDS = 60 * 60  # 60 minutes, per FR-U4
+TOKEN_TTL_SECONDS = int(os.getenv("TOKEN_TTL_SECONDS", str(60 * 60)))
 
 users = {}   # username -> {"salt": bytes, "password_hash": str}
 tokens = {}  # token -> {"username": str, "expires_at": float}
