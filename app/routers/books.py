@@ -36,7 +36,6 @@ def get_book_or_404(book_id: int):
 
 @router.post("", status_code=201)
 def create_book(body: BookCreate, _user: str = Depends(current_user)):
-    global _next_id
     if any(b["isbn"] == body.isbn for b in books.values()):
         raise HTTPException(status_code=409, detail="isbn already exists")
     
@@ -52,7 +51,7 @@ def create_book(body: BookCreate, _user: str = Depends(current_user)):
 @router.get("")
 def list_books(
     page: int = Query(1, ge=1),
-    size: int = Query(10, ge=1, le=50),   # size > 50 自动返回 422
+    size: int = Query(10, ge=1, le=50),   # size > 50, return 422
     q: str | None = None,
 ):
     items = sorted(books.values(),key=lambda b:b["id"])
@@ -73,6 +72,7 @@ def list_books(
 @router.get("/{book_id}")
 def get_book(book_id: int):
     return get_book_or_404(book_id)
+
 
 @router.put("/{book_id}")
 def update_book(book_id: int, body: BookUpdate, _user: str = Depends(current_user)):
