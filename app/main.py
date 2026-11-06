@@ -2,12 +2,12 @@ from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from app import auth
-from app.routers import books
+from app.routers import books,loans
 
 app = FastAPI(title="Book Lending API")
 
 app.include_router(books.router)
-
+app.include_router(loans.router)
 
 class Credentials(BaseModel):
     username: str = Field(min_length=3)

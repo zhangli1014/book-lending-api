@@ -83,6 +83,30 @@ class ApiClient:
             headers = headers,  #token
             timeout = self.timeout
         )
+    #--------loans API------------
+    def borrow_book(self, book_id:int, headers:dict|None=None)->requests.Response:
+        return requests.post(
+            f"{self.base_url}/loans",
+            headers = headers,  #token
+            json = {"book_id": book_id},    
+            timeout = self.timeout
+        )
+    
+    def return_book(self, loan_id:int, headers:dict|None=None)->requests.Response:
+        return requests.post(
+            f"{self.base_url}/loans/{loan_id}/return",
+            headers = headers,  #token
+            timeout = self.timeout
+        )
+    def list_my_loans(self, headers:dict|None=None, status:str|None=None)->requests.Response:
+        
+        params = {"status":status} if status is not None else None
+        return requests.get(
+            f"{self.base_url}/loans/me",
+            headers = headers,  #token
+            params= params,  
+            timeout = self.timeout
+        )
 
 # ---------- Clients and users ----------
 @pytest.fixture(scope="session")
@@ -162,3 +186,60 @@ def seeded_books(api, token, book_cleanup) -> list[dict]:
         books.append(book)
     return books
 
+#--------------loans-------------------
+@pytest.fixture
+def make_headers(api):
+    """Factory: register a fresh user and return their auth headers."""
+    def _make() -> dict:
+        username = f"user_{uuid.uuid4().hex[:8]}"
+        password = "abcd1234"
+        assert api.register(username, password).status_code == 201
+        resp = api.login(username, password)
+        assert resp.status_code == 200, f"setup failed: {resp.status_code} {resp.text}"
+        return {"Authorization": f"Bearer {resp.json()['access_token']}"}
+    return _make
+
+
+@pytest.fixture
+def make_book(api, token, book_cleanup):
+    """Factory: create a book with a chosen number of copies."""
+    auth_headers = {"Authorization": f"Bearer {token}"}
+    def _make(total_copies: int = 1) -> dict:
+        suffix = uuid.uuid4().hex[:8]
+        resp = api.create_book(
+            title=f"loan_title_{suffix}",
+            author=f"loan_author_{suffix}",
+            isbn=f"loan_isbn_{suffix}",
+            total_copies=total_copies,
+            headers=auth_headers,
+        )
+        assert resp.status_code == 201, f"setup failed: {resp.status_code} {resp.text}"
+        book = resp.json()
+        book_cleanup.append(book["id"])
+        return book
+    return _make
+
+
+@pytest.fixture
+def loan_cleanup(api, book_cleanup):
+    """Return any loans still open at the end of a test.
+
+    It depends on book_cleanup, so pytest tears it down first. A book with
+    active loans cannot be deleted (FR-B6), so loans must be returned first.
+    """
+    open_loans: list[tuple[int, dict]] = []
+    yield open_loans
+    for loan_id, headers in open_loans:
+        api.return_book(loan_id, headers=headers)  # 409 if already returned: ignored
+
+
+@pytest.fixture
+def borrow(api, loan_cleanup):
+    """Factory: borrow a book as setup, and register the loan for cleanup."""
+    def _borrow(book_id: int, headers: dict) -> dict:
+        resp = api.borrow_book(book_id, headers=headers)
+        assert resp.status_code == 201, f"setup failed: {resp.status_code} {resp.text}"
+        loan = resp.json()
+        loan_cleanup.append((loan["id"], headers))
+        return loan
+    return _borrow

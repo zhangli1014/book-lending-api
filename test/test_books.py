@@ -199,3 +199,15 @@ def test_delete_missing_book_return_404(api,token,created_book):
     headers = {"Authorization": f"Bearer {token}"}
     resp = api.delete_book(NOT_FOUND_ID,headers=headers)
     assert resp.status_code == 404
+
+# ---------- Loan-dependent rules (need stage 4) ----------
+@pytest.mark.skip(reason="TC-B08 needs the loans module (stage 4)")
+def test_tc_b08_total_below_active_loans_returns_422():
+    # Borrow 2 copies, then try to set total_copies to 1 -> expect 422.
+    pass
+
+
+@pytest.mark.skip(reason="TC-B09 needs the loans module (stage 4)")
+def test_tc_b09_delete_book_with_active_loan_returns_409():
+    # Borrow a copy, then try to delete the book -> expect 409.
+    pass

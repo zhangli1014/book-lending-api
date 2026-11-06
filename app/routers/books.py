@@ -1,15 +1,15 @@
-import itertools
-
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel, Field
 
 from app.auth import current_user
+from app.store import active_loan_count,books,book_ids
 
 router = APIRouter(prefix="/books", tags=["books"])
 
+'''
 books: dict[int, dict] = {}
-_ids = itertools.count(1)
-
+book_ids = itertools.count(1)
+'''
 
 class BookCreate(BaseModel):
     title: str = Field(min_length=1)
@@ -23,10 +23,6 @@ class BookUpdate(BaseModel):
     author: str = Field(min_length=1)
     total_copies: int = Field(ge=0)
 
-def active_loan_count(book_id: int) -> int:
-    """Placeholder until the loans module exists (stage 4).
-    Replace the body with a real count of active loans for this book."""
-    return 0
 
 def get_book_or_404(book_id: int):
     book = books.get(book_id)
@@ -39,7 +35,7 @@ def create_book(body: BookCreate, _user: str = Depends(current_user)):
     if any(b["isbn"] == body.isbn for b in books.values()):
         raise HTTPException(status_code=409, detail="isbn already exists")
     
-    book_id = next(_ids)
+    book_id = next(book_ids)
     book = {
         "id": book_id,
         **body.model_dump(),
