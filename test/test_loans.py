@@ -177,3 +177,37 @@ def test_list_my_loans_invalid_status_returns_422(api, make_headers, status):
 
 def test_list_my_loans_without_token_returns_401(api):
     assert api.list_my_loans().status_code == 401
+
+import threading
+
+
+def test_tc_l11_concurrent_borrow_of_last_copy_one_succeeds(
+    api, db, make_book, make_headers, loan_cleanup):
+    book = make_book(total_copies=1)
+    users = [make_headers(), make_headers()]
+    barrier = threading.Barrier(len(users))  # release both requests at the same moment
+    outcomes = []
+
+    def attempt(headers):
+        barrier.wait()
+        outcomes.append((headers, api.borrow_book(book["id"], headers=headers)))
+
+    threads = [threading.Thread(target=attempt, args=(h,)) for h in users]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    for headers, resp in outcomes:
+        if resp.status_code == 201:
+            loan_cleanup.append((resp.json()["id"], headers))
+
+    assert sorted(resp.status_code for _, resp in outcomes) == [201, 409]
+    cur = db.cursor()
+    cur.execute("SELECT available_copies FROM books WHERE id = %s", (book["id"],))
+    assert cur.fetchone()["available_copies"] == 0 
+    cur.execute(
+            "SELECT COUNT(*) AS n FROM loans WHERE book_id = %s AND status = 'active'",
+            (book["id"], ),
+        )
+    assert cur.fetchone()["n"] == 1

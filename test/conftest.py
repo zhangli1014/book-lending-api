@@ -5,6 +5,8 @@ import random
 import pytest
 import requests
 
+import pymysql
+from pymysql.cursors import DictCursor
 
 class ApiClient:
     #API Wrapper,Thin wrapper around the auth endpoints.
@@ -149,13 +151,14 @@ def new_book()->dict:
         "total_copies": random.randint(1, 100)
     }
 @pytest.fixture
-def book_cleanup(api,token):
+def book_cleanup(db):
      """Collects ids of books created during a test and deletes them afterwards."""
      create_ids: list[int] = []
      yield create_ids
-     headers = {"Authorization": f"Bearer {token}"}
-     for book in create_ids:
-        api.delete_book(book,headers)
+     with db.cursor() as cur:     
+        for book_id in create_ids:
+            cur.execute("DELETE FROM loans WHERE book_id = %s", (book_id,))
+            cur.execute("DELETE FROM books WHERE id = %s", (book_id,))
 
 @pytest.fixture
 def created_book(api, token, new_book,book_cleanup)->dict:
@@ -223,7 +226,6 @@ def make_book(api, token, book_cleanup):
 @pytest.fixture
 def loan_cleanup(api, book_cleanup):
     """Return any loans still open at the end of a test.
-
     It depends on book_cleanup, so pytest tears it down first. A book with
     active loans cannot be deleted (FR-B6), so loans must be returned first.
     """
@@ -243,3 +245,49 @@ def borrow(api, loan_cleanup):
         loan_cleanup.append((loan["id"], headers))
         return loan
     return _borrow
+
+#----------------db-----------
+@pytest.fixture
+def db():
+    # autocommit=True: each query sees the latest committed data. Without it,
+    # InnoDB's REPEATABLE READ snapshot can show stale values in a test.
+    conn = pymysql.connect(
+        host=os.getenv("DB_HOST", "127.0.0.1"),
+        port=int(os.getenv("DB_PORT", "3306")),
+        user=os.getenv("DB_USER", "app"),
+        password=os.getenv("DB_PASSWORD", "app_password"),
+        database=os.getenv("DB_NAME", "book_lending"),
+        cursorclass=DictCursor,
+        autocommit=True,
+    )
+    yield conn
+    conn.close()
+
+'''
+def db_available_copies(db, book_id: int) -> int:
+    with db.cursor() as cur:
+        cur.execute("SELECT available_copies FROM books WHERE id = %s", (book_id,))
+        return cur.fetchone()["available_copies"]
+
+
+def db_loan_count(db, book_id: int, status: str) -> int:
+    with db.cursor() as cur:
+        cur.execute(
+            "SELECT COUNT(*) AS n FROM loans WHERE book_id = %s AND status = %s",
+            (book_id, status),
+        )
+        return cur.fetchone()["n"]
+'''
+
+@pytest.fixture
+def book_totals(db):
+    """Return a function that reads (total_copies, available_copies) from the database."""
+    def _read(book_id: int) -> tuple[int, int]:
+        with db.cursor() as cur:
+            cur.execute(
+                "SELECT total_copies, available_copies FROM books WHERE id = %s",
+                (book_id,),
+            )
+            row = cur.fetchone()
+        return row["total_copies"], row["available_copies"]
+    return _read

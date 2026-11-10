@@ -3,6 +3,9 @@ from pydantic import BaseModel, Field
 
 from app import auth
 from app.routers import books,loans
+from app.db import transaction
+import pymysql
+
 
 app = FastAPI(title="Book Lending API")
 
@@ -18,22 +21,26 @@ class Credentials(BaseModel):
 def register(body: Credentials):
     if len(body.password) < 8:
         raise HTTPException(status_code=422, detail="password must be at least 8 characters")
-    if body.username in auth.users:
+    try:
+        with transaction() as conn:
+            auth.create_user(conn, body.username, body.password)
+    except pymysql.err.IntegrityError:
         raise HTTPException(status_code=409, detail="username already exists")
-
-    auth.create_user(body.username, body.password)
+    
     return {"username": body.username}
 
 
 @app.post("/auth/login")
 def login(body: Credentials):
-    if not auth.verify_password(body.username, body.password):
-        raise HTTPException(status_code=401, detail="invalid username or password")
+    with transaction() as conn:
+        user_id = auth.verify_password(conn,body.username, body.password)
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="invalid username or password")
 
-    return {
-        "access_token": auth.issue_token(body.username),
-        "token_type": "bearer",
-    }
+        return {
+            "access_token": auth.issue_token(conn,user_id),
+            "token_type": "bearer",
+        }
 
 
 @app.get("/auth/me")

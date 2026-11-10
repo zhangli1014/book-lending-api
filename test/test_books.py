@@ -168,19 +168,22 @@ def test_update_book_without_token_return_401(api,created_book,book_cleanup):
         total_copies = 1,)
     assert resp.status_code == 401
 
-def test_update_total_less_loan_return_422(api,token,created_book,book_cleanup):
-    pass
-    """
-    headers = {"Authorization": f"Bearer {token}"}
-    new_total = active_loan_count(created_book["id"])-1
+def test_update_total_less_loan_return_422(api,db,make_book,make_headers,borrow,book_totals):
+    book = make_book(total_copies = 3)
+    borrow(book["id"],make_headers())
+    borrow(book["id"],make_headers())
+    owner = make_headers()
+
     resp = api.update_book(
-        created_book["id"],
-        title = created_book["title"],
-        author = created_book["author"],
-        total_copies = new_total,
-        headers=headers)
+        book["id"],
+        title = book["title"],
+        author = book["author"],
+        total_copies = 1,
+        headers=owner,
+        )
     assert resp.status_code == 422
-    """
+    assert book_totals(book["id"])==(3,1)
+    
 #------delete book-----------
 def test_delete_valid_book_return_204(api,token,created_book):
     headers = {"Authorization": f"Bearer {token}"}
@@ -201,13 +204,12 @@ def test_delete_missing_book_return_404(api,token,created_book):
     assert resp.status_code == 404
 
 # ---------- Loan-dependent rules (need stage 4) ----------
-@pytest.mark.skip(reason="TC-B08 needs the loans module (stage 4)")
-def test_tc_b08_total_below_active_loans_returns_422():
-    # Borrow 2 copies, then try to set total_copies to 1 -> expect 422.
-    pass
-
-
-@pytest.mark.skip(reason="TC-B09 needs the loans module (stage 4)")
-def test_tc_b09_delete_book_with_active_loan_returns_409():
+#@pytest.mark.skip(reason="TC-B09 needs the loans module (stage 4)")
+def test_tc_b09_delete_book_with_active_loan_returns_409(api,db,make_book,make_headers,borrow):
     # Borrow a copy, then try to delete the book -> expect 409.
-    pass
+    book = make_book(total_copies = 3)
+    borrow(book["id"],make_headers())
+    resp = api.delete_book(book["id"],make_headers())
+    assert resp.status_code == 409
+
+    
