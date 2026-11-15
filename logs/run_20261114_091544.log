@@ -1,0 +1,160 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.2.0, pluggy-1.7.0 -- /home/lizhang/projects/book-lending-api/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/lizhang/projects/book-lending-api/tests
+configfile: pytest.ini
+plugins: playwright-0.10.0, anyio-4.15.1
+collecting ... collected 92 items
+
+tests/test_auth.py::test_register_return_201 PASSED                      [  1%]
+tests/test_auth.py::test_register_duplicate_return_409 PASSED            [  2%]
+tests/test_auth.py::test_register_invalid_pass_return_422[1] PASSED      [  3%]
+tests/test_auth.py::test_register_invalid_pass_return_422[12] PASSED     [  4%]
+tests/test_auth.py::test_register_invalid_pass_return_422[1234567] PASSED [  5%]
+tests/test_auth.py::test_login_valid_data_return_200 PASSED              [  6%]
+tests/test_auth.py::test_login_invalid_pass_return_401 PASSED            [  7%]
+tests/test_auth.py::test_login_unknown_user_return_401 PASSED            [  8%]
+tests/test_auth.py::test_endpoint_valid_token_return_200 PASSED          [  9%]
+tests/test_auth.py::test_endpoint_without_token_return_401 PASSED        [ 10%]
+tests/test_auth.py::test_endpoint_malformed_token_return_401[Bearer virtual-token] PASSED [ 11%]
+tests/test_auth.py::test_endpoint_malformed_token_return_401[Bearer ] PASSED [ 13%]
+tests/test_auth.py::test_endpoint_malformed_token_return_401[Basic dXNlcjpwYXNz] PASSED [ 14%]
+tests/test_auth.py::test_endpoint_malformed_token_return_401[not-a-token] PASSED [ 15%]
+tests/test_auth.py::test_tampered_real_token_returns_401 PASSED          [ 16%]
+tests/test_auth.py::test_endpoint_expired_token_return_401 PASSED        [ 17%]
+tests/test_books.py::test_create_book_return_201 PASSED                  [ 18%]
+tests/test_books.py::test_create_book_notoken_401 PASSED                 [ 19%]
+tests/test_books.py::test_create_book_dup_isbn_return_409 PASSED         [ 20%]
+tests/test_books.py::test_create_book_neg_copies_return_422[-1] PASSED   [ 21%]
+tests/test_books.py::test_create_book_neg_copies_return_422[-99] PASSED  [ 22%]
+tests/test_books.py::test_list_books_default_pagination_200 PASSED       [ 23%]
+tests/test_books.py::test_list_books_valid_pagination_200[chromium-1-1] PASSED [ 25%]
+tests/test_books.py::test_list_books_valid_pagination_200[chromium-1-10] PASSED [ 26%]
+tests/test_books.py::test_list_books_valid_pagination_200[chromium-1-50] PASSED [ 27%]
+tests/test_books.py::test_list_books_valid_pagination_200[chromium-2-5] PASSED [ 28%]
+tests/ui/test_books.py::test_ui_borrow_book_updates_stock[chromium] PASSED [ 29%]
+tests/ui/test_books.py::test_ui_borrow_book_no_copies[chromium] PASSED   [ 30%]
+tests/ui/test_books.py::test_ui_borrow_same_book_twice_shows_error[chromium] PASSED [ 31%]
+tests/ui/test_books.py::test_ui_borrow_sixth_book_shows_limit[chromium] PASSED [ 32%]
+tests/ui/test_books.py::test_ui_book_search_by_title_partial[chromium] PASSED [ 33%]
+tests/ui/test_books.py::test_ui_book_search_by_author[chromium] PASSED   [ 34%]
+tests/ui/test_books.py::test_ui_search_with_no_match_shows_empty_state[chromium] PASSED [ 35%]
+tests/ui/test_books.py::test_ui_21_clearing_search_restores_full_list[chromium] PASSED [ 36%]
+tests/ui/test_books.py::test_ui_list_books_default_pagination_200[chromium] FAILED [ 38%]
+tests/ui/test_books.py::test_ui_previous_disabled_on_first_page[chromium] PASSED [ 39%]
+tests/ui/test_loans.py::test_ui_return_updates_status_stock[chromium] PASSED [ 40%]
+tests/ui/test_loans.py::test_ui_returned_book_can_be_borrowed_again[chromium] PASSED [ 41%]
+tests/ui/test_loans.py::test_ui_11_loans_show_only_own_loans[chromium] PASSED [ 42%]
+tests/ui/test_loans.py::test_ui_12_filter_active_hides_returned[chromium] PASSED [ 43%]
+tests/ui/test_loans.py::test_ui_13_filter_returned_hides_active[chromium] PASSED [ 44%]
+tests/ui/test_loans.py::test_ui_14_return_button_only_on_active_loans[chromium] PASSED [ 45%]
+tests/ui/test_loans.py::test_ui_15_empty_state_when_no_loans[chromium] PASSED [ 46%]
+tests/ui/test_loans.py::test_ui_16_due_date_is_14_days_after_borrow[chromium] PASSED [ 47%]
+tests/ui/test_loans.py::test_ui_17_shows_book_title_not_id[chromium] PASSED [ 48%]
+tests/ui/test_login.py::test_ui_01_register_new_user_lands_on_books[chromium] PASSED [ 50%]
+tests/ui/test_login.py::test_ui_02_register_registered_user_fail[chromium] PASSED [ 51%]
+tests/ui/test_login.py::test_ui_03_register_invalid_pass__fail[chromium-1] PASSED [ 52%]
+tests/ui/test_login.py::test_ui_03_register_invalid_pass__fail[chromium-12] PASSED [ 53%]
+tests/ui/test_login.py::test_ui_03_register_invalid_pass__fail[chromium-1234567] PASSED [ 54%]
+tests/ui/test_login.py::test_ui_01_login_registered_user_lands_on_books[chromium] PASSED [ 55%]
+tests/ui/test_login.py::test_ui_02_wrong_pass[chromium] PASSED           [ 56%]
+tests/ui/test_login.py::test_ui_03_wrong_user[chromium] PASSED           [ 57%]
+tests/test_books.py::test_list_books_size_50_200 PASSED                  [ 58%]
+tests/test_books.py::test_list_books_size_greater_50[51] PASSED          [ 59%]
+tests/test_books.py::test_list_books_size_greater_50[100] PASSED         [ 60%]
+tests/test_books.py::test_list_books_size_greater_50[200] PASSED         [ 61%]
+tests/test_books.py::test_page_beyond_end_returns_empty_items PASSED     [ 63%]
+tests/test_books.py::test_list_books_partial_mixed_case_title PASSED     [ 64%]
+tests/test_books.py::test_list_books_search_by_author_or_title[author] PASSED [ 65%]
+tests/test_books.py::test_list_books_search_by_author_or_title[title] PASSED [ 66%]
+tests/test_books.py::test_list_books_mismatch_200 PASSED                 [ 67%]
+tests/test_books.py::test_list_books_empty_query_200 PASSED              [ 68%]
+tests/test_books.py::test_get_book_id_returns_200 PASSED                 [ 69%]
+tests/test_books.py::test_get_book_id_not_exist_returns_404 PASSED       [ 70%]
+tests/test_books.py::test_update_book_return_201 PASSED                  [ 71%]
+tests/test_books.py::test_update_missing_book_return_404 PASSED          [ 72%]
+tests/test_books.py::test_update_book_without_token_return_401 PASSED    [ 73%]
+tests/test_books.py::test_update_total_less_loan_return_422 PASSED       [ 75%]
+tests/test_books.py::test_delete_valid_book_return_204 PASSED            [ 76%]
+tests/test_books.py::test_delete_book_without_token_return_401 PASSED    [ 77%]
+tests/test_books.py::test_delete_missing_book_return_404 PASSED          [ 78%]
+tests/test_books.py::test_tc_b09_delete_book_with_active_loan_returns_409 PASSED [ 79%]
+tests/test_loans.py::test_tc_l01_borrow_available_book_returns_201 PASSED [ 80%]
+tests/test_loans.py::test_borrow_no_copies_book_returns_409 PASSED       [ 81%]
+tests/test_loans.py::test_same_user_borrow_book_twice_returns_409 PASSED [ 82%]
+tests/test_loans.py::test_sixth_active_loan_returns_422 PASSED           [ 83%]
+tests/test_loans.py::test_unknown_book_returns_404 PASSED                [ 84%]
+tests/test_loans.py::test_without_token_returns_401 PASSED               [ 85%]
+tests/test_loans.py::test_return_own_book_returns_200 PASSED             [ 86%]
+tests/test_loans.py::test_return_others_book_returns_403 PASSED          [ 88%]
+tests/test_loans.py::test_return_same_book_twice_returns_409 PASSED      [ 89%]
+tests/test_loans.py::test_return_unknown_book_returns_404 PASSED         [ 90%]
+tests/test_loans.py::test_return_no_token_returns_401 PASSED             [ 91%]
+tests/test_loans.py::test_same_book_can_be_borrowed_again_after_return PASSED [ 92%]
+tests/test_loans.py::test_due_date_is_borrowed_at_plus_14_days PASSED    [ 93%]
+tests/test_loans.py::test_filter_active_excludes_returned PASSED         [ 94%]
+tests/test_loans.py::test_list_my_loans_shows_only_own_loans PASSED      [ 95%]
+tests/test_loans.py::test_list_my_loans_invalid_status_returns_422[foo] PASSED [ 96%]
+tests/test_loans.py::test_list_my_loans_invalid_status_returns_422[ACTIVE] PASSED [ 97%]
+tests/test_loans.py::test_list_my_loans_without_token_returns_401 PASSED [ 98%]
+tests/test_loans.py::test_tc_l11_concurrent_borrow_of_last_copy_one_succeeds PASSED [100%]
+
+=================================== FAILURES ===================================
+_____________ test_ui_list_books_default_pagination_200[chromium] ______________
+
+logged_in_page = <Page url='http://127.0.0.1:8000/ui/books'>
+seeded_books = [{'id': 2692, 'title': 'seed_title_cc852c2b', 'author': 'seed_author_cc852c2b', 'isbn': 'seed_isbn_cc852c2b', ...}, {'...{'id': 2697, 'title': 'seed_title_1cf88444', 'author': 'seed_author_1cf88444', 'isbn': 'seed_isbn_1cf88444', ...}, ...]
+
+    def test_ui_list_books_default_pagination_200(logged_in_page,seeded_books):
+        books = BooksPage(logged_in_page).goto()
+        expect(books.row).to_have_count(10)
+        first_page_book_title = books.row.locator("td").first.all_inner_texts() # all book tiltles in 1 page
+    
+>       second_page = books.go_to_page("Next")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/ui/test_books.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/ui/pages/books_page.py:32: in go_to_page
+    self.page.get_by_test_id(f"{direction}-page").click()
+.venv/lib/python3.14/site-packages/playwright/sync_api/_generated.py:11045: in click
+    self._sync(
+.venv/lib/python3.14/site-packages/playwright/_impl/locator.py:222: in click
+    return await self._frame.click(
+.venv/lib/python3.14/site-packages/playwright/_impl/frame.py:587: in click
+    return await self._channel.click(
+.venv/lib/python3.14/site-packages/playwright/_impl/channel_owner.py:387: in finish
+    raise e from None
+.venv/lib/python3.14/site-packages/playwright/_impl/channel_owner.py:352: in finish
+    result = await zone.run_async(lambda: awaitable)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <playwright._impl.utils.zones.Zone object at 0x70e4fcaefde0>
+func = <function ChannelOwner._wrap_api_call.<locals>.finish.<locals>.<lambda> at 0x70e4fc996350>
+
+    async def run_async(self, func: Callable[[], Awaitable[R]]) -> R:
+        # Python: run() of an async function. The coroutine runs when it is awaited,
+        # so the zone must be current while it is awaited, not while it is created.
+        token = _async_local_storage.set(self)
+        try:
+>           return await func()
+                   ^^^^^^^^^^^^
+E           playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("Next-page")
+
+.venv/lib/python3.14/site-packages/playwright/_impl/utils/zones.py:58: TimeoutError
+=============================== warnings summary ===============================
+ui/test_books.py::test_ui_borrow_book_updates_stock[chromium]
+  /home/lizhang/projects/book-lending-api/.venv/lib/python3.14/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Session-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'base_url' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/ui/test_books.py::test_ui_list_books_default_pagination_200[chromium]
+============= 1 failed, 91 passed, 1 warning in 3652.71s (1:00:52) =============

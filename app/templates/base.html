@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Book Lending{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body data-page="{{ page }}">
+  <header>
+    <h1>Book Lending</h1>
+    <nav>
+      <a href="/ui/books" data-testid="nav-books">Books</a>
+      <a href="/ui/loans" data-testid="nav-loans">My loans</a>
+      <button type="button" id="logout" data-testid="logout-button" hidden>Log out</button>
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+    <p id="message" role="status" data-testid="message"></p>
+  </main>
+  <script src="{{ url_for('static', path='app.js') }}"></script>
+</body>
+</html>

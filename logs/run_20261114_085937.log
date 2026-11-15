@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.2.0, pluggy-1.7.0 -- /home/lizhang/projects/book-lending-api/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/lizhang/projects/book-lending-api/tests
+configfile: pytest.ini
+plugins: playwright-0.10.0, anyio-4.15.1
+collecting ... collected 92 items
+
+tests/test_auth.py::test_register_return_201 PASSED                      [  1%]
+tests/test_auth.py::test_register_duplicate_return_409 PASSED            [  2%]
+tests/test_auth.py::test_register_invalid_pass_return_422[1] PASSED      [  3%]
+tests/test_auth.py::test_register_invalid_pass_return_422[12] PASSED     [  4%]
+tests/test_auth.py::test_register_invalid_pass_return_422[1234567] PASSED [  5%]
+tests/test_auth.py::test_login_valid_data_return_200 PASSED              [  6%]
+tests/test_auth.py::test_login_invalid_pass_return_401 PASSED            [  7%]
+tests/test_auth.py::test_login_unknown_user_return_401 PASSED            [  8%]
+tests/test_auth.py::test_endpoint_valid_token_return_200 PASSED          [  9%]
+tests/test_auth.py::test_endpoint_without_token_return_401 PASSED        [ 10%]
+tests/test_auth.py::test_endpoint_malformed_token_return_401[Bearer virtual-token] PASSED [ 11%]
+tests/test_auth.py::test_endpoint_malformed_token_return_401[Bearer ] PASSED [ 13%]
+tests/test_auth.py::test_endpoint_malformed_token_return_401[Basic dXNlcjpwYXNz] PASSED [ 14%]
+tests/test_auth.py::test_endpoint_malformed_token_return_401[not-a-token] PASSED [ 15%]
+tests/test_auth.py::test_tampered_real_token_returns_401 PASSED          [ 16%]
+tests/test_auth.py::test_endpoint_expired_token_return_401 

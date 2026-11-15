@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Books · Book Lending{% endblock %}
+{% block content %}
+<section>
+  <h2>Books</h2>
+  <details id="add-book-panel" data-testid="add-book-panel">
+  <summary>Add a book</summary>
+  <form id="add-book-form" data-testid="add-book-form">
+    <label>Title
+      <input id="new-title" data-testid="new-title-input" required>
+    </label>
+    <label>Author
+      <input id="new-author" data-testid="new-author-input" required>
+    </label>
+    <label>ISBN
+      <input id="new-isbn" data-testid="new-isbn-input" required>
+    </label>
+    <label>Copies
+      <input id="new-copies" type="number" min="0" value="1"
+             data-testid="new-copies-input" required>
+    </label>
+    <button type="submit" data-testid="add-book-button">Add book</button>
+  </form>
+</details>
+  <form id="search-form" data-testid="search-form">
+    <input id="search-input" type="search" placeholder="Title or author" data-testid="search-input">
+    <button type="submit" data-testid="search-button">Search</button>
+  </form>
+
+  <table data-testid="books-table">
+    <thead>
+      <tr><th>Title</th><th>Author</th><th>Available</th><th>Total</th><th></th></tr>
+    </thead>
+    <tbody id="books-body"></tbody>
+  </table>
+
+  <nav class="pager">
+    <button type="button" id="prev-page" data-testid="prev-page">Previous</button>
+    <span id="page-info" data-testid="page-info"></span>
+    <button type="button" id="next-page" data-testid="next-page">Next</button>
+  </nav>
+</section>
+{% endblock %}

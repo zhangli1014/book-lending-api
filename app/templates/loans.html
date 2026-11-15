@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}My loans · Book Lending{% endblock %}
+{% block content %}
+<section>
+  <h2>My loans</h2>
+  <label>Status
+    <select id="status-filter" data-testid="status-filter">
+      <option value="">All</option>
+      <option value="active">Active</option>
+      <option value="returned">Returned</option>
+    </select>
+  </label>
+
+  <table data-testid="loans-table">
+    <thead>
+      <tr><th>Book</th><th>Borrowed</th><th>Due</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody id="loans-body"></tbody>
+  </table>
+</section>
+{% endblock %}

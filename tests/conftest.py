@@ -119,17 +119,20 @@ def api()->ApiClient:
     )
 
 @pytest.fixture
-def new_user()->dict:
+def new_user(user_cleanup)->dict:
     # create a new user 
-    return{
+    user = {
         "username": f"user_{uuid.uuid4().hex[:8]}",
         "password": "abcd1234"
     }
+    user_cleanup.append(user["username"])
+    return user
 
 @pytest.fixture
-def registered_user(api,new_user)->dict:
+def registered_user(api,new_user,user_cleanup)->dict:
 
     resp = api.register(new_user["username"], new_user["password"])
+    user_cleanup.append(new_user["username"])
     assert resp.status_code == 201, f"setup failed: {resp.status_code} {resp.text}"
     return new_user
 
@@ -138,6 +141,23 @@ def token(api,registered_user)->dict:
     resp = api.login(registered_user["username"], registered_user["password"])
     assert resp.status_code == 200, f"setup failed: {resp.status_code} {resp.text}"
     return resp.json()["access_token"]
+
+@pytest.fixture
+def user_cleanup(db):
+    """Removes users created during a test, with their tokens and loans."""
+    usernames: list[str] = []
+    yield usernames
+    with db.cursor() as cur:
+        for username in usernames:
+            cur.execute(
+                "DELETE t FROM tokens t JOIN users u ON u.id = t.user_id WHERE u.username = %s",
+                (username,),
+            )
+            cur.execute(
+                "DELETE l FROM loans l JOIN users u ON u.id = l.user_id WHERE u.username = %s",
+                (username,),
+            )
+            cur.execute("DELETE FROM users WHERE username = %s", (username,))
 
 #-------------------books----------------
 @pytest.fixture
@@ -191,12 +211,13 @@ def seeded_books(api, token, book_cleanup) -> list[dict]:
 
 #--------------loans-------------------
 @pytest.fixture
-def make_headers(api):
+def make_headers(api,user_cleanup):
     """Factory: register a fresh user and return their auth headers."""
     def _make() -> dict:
         username = f"user_{uuid.uuid4().hex[:8]}"
         password = "abcd1234"
         assert api.register(username, password).status_code == 201
+        user_cleanup.append(username)
         resp = api.login(username, password)
         assert resp.status_code == 200, f"setup failed: {resp.status_code} {resp.text}"
         return {"Authorization": f"Bearer {resp.json()['access_token']}"}

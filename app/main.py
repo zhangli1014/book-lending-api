@@ -1,17 +1,27 @@
+from pathlib import Path
+
+import pymysql
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from app import auth
-from app.routers import books,loans
+from app import auth, ui
 from app.db import transaction
-import pymysql
-
+from app.routers import books, loans
 
 app = FastAPI(title="Book Lending API")
 
+app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
 app.include_router(books.router)
 app.include_router(loans.router)
+app.include_router(ui.router)
 
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse("/ui/login")
+
+    
 class Credentials(BaseModel):
     username: str = Field(min_length=3)
     password: str

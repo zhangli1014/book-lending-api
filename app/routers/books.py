@@ -65,9 +65,8 @@ def list_books(
         total = cur.fetchone()["n"]
 
         cur.execute(
-            """SELECT * FROM books
-            ORDER BY id LIMIT %s OFFSET %s""",
-            (size, (page - 1) * size),
+            f"SELECT * FROM books {where} ORDER BY id LIMIT %s OFFSET %s",
+            [*params, size, (page - 1) * size],
         )
         items = cur.fetchall()
 
@@ -119,7 +118,7 @@ def update_book(book_id: int, body: BookUpdate, _user: str = Depends(current_use
         return get_book_or_404(conn, book_id)
 
 @router.delete("/{book_id}", status_code=204)
-def update_book(book_id: int, _user: str = Depends(current_user)):
+def delete_book(book_id: int, _user: str = Depends(current_user)):
     with transaction() as conn:
         book = get_book_or_404(conn,book_id,for_update=True)
         active = active_loan_count(conn,book_id)
