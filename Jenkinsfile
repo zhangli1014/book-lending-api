@@ -47,7 +47,6 @@ pipeline {
     post {
         always {
             sh '''
-                docker compose cp api:/tmp/report.xml report.xml || true
                 docker compose down
             '''
             junit testResults: 'report.xml',
