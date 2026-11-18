@@ -15,24 +15,6 @@ pipeline {
             }
         }
 
-        stage('Wait for API') {
-            steps {
-                sh '''
-                    for i in $(seq 1 30); do
-                        if curl -fsS http://localhost:8000/docs > /dev/null; then
-                            echo "API is ready"
-                            exit 0
-                        fi
-                        sleep 2
-                    done
-
-                    echo "API failed to start"
-                    docker compose logs
-                    exit 1
-                '''
-            }
-        }
-
         stage('Run API tests') {
             steps {
                 sh '''
@@ -46,11 +28,8 @@ pipeline {
 
     post {
         always {
-            sh '''
-                docker compose down
-            '''
-            junit testResults: 'report.xml',
-                  allowEmptyResults: true
+            junit 'report.xml'
+            sh 'docker compose down -v'
         }
     }
 }
