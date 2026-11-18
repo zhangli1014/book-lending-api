@@ -1,6 +1,8 @@
 services:
   db:
-    image: mysql:8.0
+    build:
+      context: .
+      dockerfile: Dockerfile.db
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: book_lending_test
@@ -9,7 +11,10 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./app/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
 
   api:
     build: .
