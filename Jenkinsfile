@@ -11,8 +11,10 @@ pipeline {
 
         stage('Start services') {
             steps {
-                sh 'docker compose up -d --build'
+                    dir("${WORKSPACE}") {
+                    sh 'docker compose up -d --build'
             }
+        }
         }
 
         stage('Run API tests') {
@@ -21,15 +23,21 @@ pipeline {
                     docker compose exec -T api pytest \
                         -v \
                         --junitxml=/tmp/report.xml
+                    
+                    docker cp "$(docker compose ps -q api):/tmp/report.xml" \
+                    "$WORKSPACE/report.xml"
                 '''
+              
             }
         }
     }
 
     post {
         always {
-            junit 'report.xml'
-            sh 'docker compose down -v'
+            junit testResults: 'report.xml', allowEmptyResults: true
+            dir("${WORKSPACE}"){
+                sh 'docker compose down || true'
+                }
         }
     }
 }
