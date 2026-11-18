@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -11,33 +10,42 @@ pipeline {
 
         stage('Start services') {
             steps {
-                    dir("${WORKSPACE}") {
+                dir("${WORKSPACE}") {
                     sh 'docker compose up -d --build'
+                }
             }
-        }
         }
 
         stage('Run API tests') {
             steps {
-                sh '''
-                    docker compose exec -T api pytest \
-                        -v \
-                        --junitxml=/tmp/report.xml
-                    
-                    docker cp "$(docker compose ps -q api):/tmp/report.xml" \
-                    "$WORKSPACE/report.xml"
-                '''
-              
+                dir("${WORKSPACE}") {
+                    sh '''
+                        set +e
+
+                        docker compose exec -T api pytest \
+                            -v \
+                            --junitxml=/tmp/report.xml
+
+                        TEST_EXIT=$?
+
+                        docker cp "$(docker compose ps -q api):/tmp/report.xml" \
+                            "$WORKSPACE/report.xml"
+
+                        ls -l "$WORKSPACE/report.xml"
+
+                        exit $TEST_EXIT
+                    '''
+                }
             }
         }
     }
 
     post {
         always {
-            junit testResults: 'report.xml', allowEmptyResults: true
-            dir("${WORKSPACE}"){
+            dir("${WORKSPACE}") {
+                junit testResults: 'report.xml', allowEmptyResults: true
                 sh 'docker compose down || true'
-                }
+            }
         }
     }
 }
